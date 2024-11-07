@@ -1,5 +1,5 @@
 <template>
-  <video ref="videoPlayer" class="video-js vjs-default-skin" controls></video>
+  <video ref="videoPlayer" class="video-js vjs-theme-city" controls></video>
 </template>
 
 <script setup>
@@ -16,6 +16,10 @@ let player = null;
 
 onMounted(() => {
   player = videojs(videoPlayer.value, {
+    controls: true,
+    autoplay: false,
+    preload: 'auto',
+    techOrder: ['html5', 'flash'],
     sources: [{ src: props.src, type: 'application/x-mpegURL' }]
   });
 
@@ -38,3 +42,10 @@ watch(() => props.src, (newSrc) => {
   }
 });
 </script>
+
+<style scoped>
+.video-js {
+  width: 100%;
+  height: 100%;
+}
+</style>
