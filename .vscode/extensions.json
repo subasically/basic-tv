@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "octref.vetur",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "mikestead.dotenv",
+    "johnsoncodehk.volar",
+    "johnsoncodehk.vscode-typescript-vue-plugin",
+    "nuxtlabs.nuxt3-snippets"
+  ]
+}
