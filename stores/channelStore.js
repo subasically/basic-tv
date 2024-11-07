@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import axios from 'axios';
 
 export const useChannelStore = defineStore('channelStore', {
   state: () => ({
@@ -11,26 +12,10 @@ export const useChannelStore = defineStore('channelStore', {
     async fetchChannels() {
       this.loading = true;
       try {
-        const response = await fetch('/api/getChannels');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        const uniqueChannels = [];
-        const channelNames = new Set();
+        const response = await axios.get('/api/getChannels');
+        const data = response.data;
 
-        data.channels.forEach(channel => {
-          const channelId = channel.url.split('/').pop().split('.')[0]; // Extract ID from URL
-          if (!channelNames.has(channel.name)) {
-            channelNames.add(channel.name);
-            uniqueChannels.push({
-              ...channel,
-              id: channelId
-            });
-          }
-        });
-
-        this.channels = uniqueChannels.sort((a, b) => a.name.localeCompare(b.name)); // Sort channels alphabetically by name
+        this.channels = data.channels;
         this.epg = data.epg;
         this.lastUpdated = data.lastUpdated;
       } catch (error) {

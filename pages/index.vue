@@ -4,16 +4,28 @@
       <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
     </div>
     <div v-else-if="channels.length" class="space-y-6">
-      <div class="channel bg-white p-4 rounded-lg shadow-md">
-        <div class="flex justify-center max-w-5xl mx-auto">
-          <VideoPlayer class="min-w-full min-h-[360px]" :src="channels[currentChannelIndex].url" />
+      <div class="channel bg-white p-4 rounded-lg shadow-md border-2 border-slate-500/100">
+        <div class="flex flex-col lg:flex-row justify-center mx-auto">
+          <div class="flex-1">
+            <VideoPlayer class="min-w-full min-h-[360px]" :src="channels[currentChannelIndex].url" />
+          </div>
+          <div class="flex-2 lg:ml-4 mt-4 lg:mt-0">
+            <label for="group-select" class="text-lg font-medium">Group</label>
+            <select id="group-select" v-model="selectedGroup" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-4">
+              <option v-for="group in uniqueGroups" :key="group" :value="group">{{ group }}</option>
+            </select>
+            <div class="overflow-y-auto max-h-[480px]">
+              <h3 class="text-lg font-medium">Channels</h3>
+              <div v-for="(channel, index) in filteredChannels" :key="index" @click="currentChannelIndex = channels.indexOf(channel)" class="cursor-pointer p-4 mb-2 bg-white rounded-lg shadow-md flex items-center space-x-4 hover:bg-gray-100">
+                <img :src="channel.logo" alt="Logo" class="w-12 h-12" />
+                <div>
+                  <h3 class="text-lg font-semibold">{{ channel.name }}</h3>
+                  <p class="text-sm text-gray-500">{{ channel.group }} - {{ channel.chno }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="flex items-center space-x-4">
-        <label for="channel-select" class="text-lg font-medium">Channel</label>
-        <select id="channel-select" v-model="currentChannelIndex" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option v-for="(channel, index) in channels" :key="index" :value="index">{{ channel.name }}</option>
-        </select>
       </div>
       <EPG :epg="epg" :currentChannel="channels[currentChannelIndex]" />
       <div class="text-sm text-gray-500">
@@ -36,9 +48,20 @@ import EPG from '~/components/EPG.vue';
 const channelStore = useChannelStore();
 const { channels, epg, lastUpdated, loading } = storeToRefs(channelStore);
 const currentChannelIndex = ref(0);
+const selectedGroup = ref('');
 
 const formattedLastUpdated = computed(() => {
   return lastUpdated.value ? formatDistanceToNow(new Date(lastUpdated.value), { addSuffix: true }) : '';
+});
+
+const uniqueGroups = computed(() => {
+  const groups = channels.value.map(channel => channel.group);
+  return [...new Set(groups)];
+});
+
+const filteredChannels = computed(() => {
+  if (!selectedGroup.value) return channels.value;
+  return channels.value.filter(channel => channel.group === selectedGroup.value);
 });
 
 onMounted(() => {

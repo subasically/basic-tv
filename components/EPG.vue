@@ -28,7 +28,7 @@ const props = defineProps({
 const currentChannelName = computed(() => props.currentChannel.name);
 
 const currentChannelEPG = computed(() => {
-  const channelId = props.currentChannel.id.replace(/^sam-/, ''); // Remove the "sam-" prefix
+  const channelId = props.currentChannel.channelId
   return props.epg.filter(program => program.channel === channelId);
 });
 

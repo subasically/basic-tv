@@ -7,8 +7,6 @@ export function parseEPG(data) {
     const xmlDoc = parser.parseFromString(data, "application/xml");
     const programs = [];
 
-    console.info('Parsing channels');
-
     const programElements = xmlDoc.getElementsByTagName("programme");
     console.info('Programs:', programElements.length);
     for (let i = 0; i < programElements.length; i++) {
@@ -22,7 +20,7 @@ export function parseEPG(data) {
       });
     }
 
-    console.info('Parsing successful');
+    console.info('Parsing  epg successful');
     return programs;
   } catch (error) {
     console.error('Error parsing EPG:', error);
