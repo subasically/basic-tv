@@ -25,6 +25,21 @@ export const useChannelStore = defineStore('channelStore', {
         this.loading = false;
       }
     },
+    async forceRefresh() {
+      this.loading = true;
+      try {
+        const response = await axios.get('/api/forceUpdate');
+        const data = response.data;
+
+        this.channels = data.channels;
+        this.epg = data.epg;
+        this.lastUpdated = data.lastUpdated;
+      } catch (error) {
+        console.warn("Error: Unable to force refresh channels, EPG, or last updated time.", error);
+      } finally {
+        this.loading = false
+      }
+    },
     setCurrentChannel(channel) {
       this.currentChannel = channel;
     },
