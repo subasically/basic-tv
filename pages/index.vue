@@ -44,6 +44,10 @@
     </div>
     <div v-else class="text-center">
       <h3 class="text-lg font-semibold">No channels found.</h3>
+      <button @click="channelStore.forceRefresh()"
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">
+        Refresh EPG
+      </button>
     </div>
   </div>
 </template>
