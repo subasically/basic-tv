@@ -1,8 +1,8 @@
 <template>
-  <div v-if="currentChannelEPG.length">
+  <div v-if="currentChannelEPG.length" class="p-4 border-t-2 border-slate-300">
     <h3 class="text-lg font-semibold mb-4">EPG for {{ currentChannelName }}</h3>
     <ul class="space-y-4">
-      <li v-for="program in currentChannelEPG" :key="program.start" :class="{'bg-yellow-100': isCurrentlyPlaying(program)}" class="p-4 bg-gray-100 rounded-lg shadow">
+      <li v-for="program in currentChannelEPG" :key="program.start" :class="{'border-l-8 border-red-500': isCurrentlyPlaying(program)}" class="p-4 bg-gray-100 rounded-lg shadow">
         <div class="flex justify-between items-center mb-2">
           <strong class="text-md font-medium">{{ program.title }}</strong>
           <span class="text-sm text-gray-600">{{ formatDate(program.start) }} - {{ formatDate(program.stop) }}</span>

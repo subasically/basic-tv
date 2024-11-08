@@ -6,8 +6,8 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
   runtimeConfig: {
     public: {
-      channelPlaylist: process.env.NUXT_PLAYLIST_URL,
-      epgUrl: process.env.NUXT_EPG_URL
+      timezone: process.env.NUXT_TIMEZONE,
+      tv_regions: process.env.NUXT_TV_REGIONS,
     }
   },
   app: {
@@ -17,6 +17,14 @@ export default defineNuxtConfig({
       }, {
         rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/videojs-themes@1.0.0/dist/city/index.css'
       }]
+    }
+  },
+  hooks: {
+    "build:done": () => {
+      console.log('Build done!')
+      // Print the runtime config values
+      console.log(`Timezone: ${process.env.NUXT_TIMEZONE}`)
+      console.log(`TV Regions: ${process.env.NUXT_TV_REGIONS}`)
     }
   }
 })

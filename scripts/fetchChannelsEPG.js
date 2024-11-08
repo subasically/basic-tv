@@ -13,18 +13,34 @@ const EPG_URL = `https://i.mjh.nz/SamsungTVPlus/${REGION_ALL}.xml.gz`;
 const PLAYBACK_URL = 'https://jmp2.uk/sam-{id}.m3u8';
 
 function logger(message, ...args) {
-  console.log(`[${new Date().toISOString()}] ${message}`, ...args);
+  if (args.length) {
+    console.log(`[${new Date().toISOString()}] ${message}`, ...args);
+    return;
+  } else {
+    console.log(`[${new Date().toISOString()}] ${message}`);
+  }
+}
+
+function deleteFileIfExists(filePath) {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      logger(`Deleted file: ${filePath}`);
+    }
+  } catch (err) {
+    logger(`Error deleting file: ${filePath}`, err);
+  }
 }
 
 async function generatePlaylist(params) {
   const allChannels = (await axios.get(APP_URL)).data.regions;
 
-  logger('Generating playlist...');
-  logger('Regions:', params.regions || process.env.REGIONS || REGION_ALL);
+  logger(`Generating playlist from ${APP_URL}`);
+  logger('Regions:', params.regions || process.env.TV_REGIONS || REGION_ALL);
   logger('Groups:', params.groups || process.env.GROUPS || '');
-  logger('Number of channels:', Object.keys(allChannels).reduce((acc, region) => acc + Object.keys(allChannels[region].channels).length, 0));
+  logger('Number of channels found:', Object.keys(allChannels).reduce((acc, region) => acc + Object.keys(allChannels[region].channels).length, 0));
 
-  const regions = (params.regions || process.env.REGIONS || REGION_ALL)
+  const regions = (params.regions || process.env.TV_REGIONS || REGION_ALL)
     .split(',')
     .map(region => region.trim().toLowerCase())
     .filter(region => region);
@@ -88,6 +104,9 @@ async function generatePlaylist(params) {
     fs.mkdirSync(publicDir, { recursive: true });
   }
 
+  // Delete the existing playlist file if it exists
+  deleteFileIfExists(PLAYLIST_PATH);
+
   fs.writeFileSync(PLAYLIST_PATH, playlistContent.join('\n'), 'utf8');
   logger('Playlist saved.');
 }
@@ -100,12 +119,27 @@ async function generateEPG() {
 
   response.data.pipe(gunzip).pipe(writeStream);
 
-  writeStream.on('finish', () => {
-    logger('EPG saved.');
+  return new Promise((resolve, reject) => {
+    writeStream.on('finish', () => {
+      logger('EPG saved.');
+      resolve();
+    });
+
+    writeStream.on('error', (err) => {
+      logger('Error saving EPG:', err);
+      reject(err);
+    });
   });
 }
 
-async function main() {
+export async function main(params) {
+  logger('Params:', params);
+
+  await generatePlaylist(params);
+  await generateEPG();
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
   const params = {
     regions: process.argv[2] || '',
     groups: process.argv[3] || '',
@@ -115,14 +149,8 @@ async function main() {
     exclude: process.argv[7] || ''
   };
 
-  logger('Params:', params);
-  logger('Environment Variables:', process.env);
-
-  await generatePlaylist(params);
-  await generateEPG();
+  main(params).catch(err => {
+    console.error('Error:', err);
+    exit(1);
+  });
 }
-
-main().catch(err => {
-  console.error('Error:', err);
-  exit(1);
-});

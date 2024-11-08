@@ -7,6 +7,7 @@ export const useChannelStore = defineStore('channelStore', {
     epg: [],
     lastUpdated: '',
     loading: true,
+    currentChannel: null, // Add this line
   }),
   actions: {
     async fetchChannels() {
@@ -23,6 +24,9 @@ export const useChannelStore = defineStore('channelStore', {
       } finally {
         this.loading = false;
       }
-    }
-  }
+    },
+    setCurrentChannel(channel) {
+      this.currentChannel = channel;
+    },
+  },
 });

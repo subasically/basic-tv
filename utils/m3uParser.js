@@ -3,6 +3,7 @@ export function parseM3U(data) {
   try {
     const lines = data.split('\n');
     const channels = [];
+    const channelNames = new Set();
 
     let currentChannel = {};
 
@@ -21,10 +22,16 @@ export function parseM3U(data) {
         currentChannel.channelId = channelId ? channelId[1] : '';
       } else if (line && !line.startsWith('#')) {
         currentChannel.url = line.trim();
-        channels.push(currentChannel);
+        if (!channelNames.has(currentChannel.name)) {
+          channels.push(currentChannel);
+          channelNames.add(currentChannel.name);
+        }
         currentChannel = {};
       }
     });
+
+    // Sort channels alphabetically by name
+    channels.sort((a, b) => a.name.localeCompare(b.name));
 
     console.info('Parsing playlist successful');
     return channels;
